@@ -15,7 +15,7 @@ import java.util.concurrent.locks.LockSupport;
  */
 public class ProducerAndConsumerComponet<T> {
 
-    //工作者线程对象数组
+    //组件本身持有一个工作者线程对象数组
     private final WorkThread<T>[] workThreads;
     private AtomicInteger index;
     private static final Random r = new Random();
@@ -25,10 +25,10 @@ public class ProducerAndConsumerComponet<T> {
 
     /**
      * 组件构造器
-     * @param threadNum 开启的工作线程数
-     * @param limitSize 指定队列阈值
-     * @param limitInterval 指定距离时间阈值
-     * @param capacity 队列的容量
+     * @param threadNum 默认新建的消费者线程个数
+     * @param limitSize 队列长度阈值;超过将唤醒阻塞的线程
+     * @param limitInterval 当前时间距离上一次任务处理时间间隔阈值;超过将唤醒阻塞的线程
+     * @param capacity 工作线程内部的有界阻塞队列的初始容量大小
      * @param processor 回调接口(初始化组价实例的时候需要传递)
      */
     public ProducerAndConsumerComponet(int threadNum,int limitSize, int limitInterval, int capacity,  Processor<T> processor) {
