@@ -15,8 +15,8 @@ import java.util.concurrent.locks.LockSupport;
  */
 public class ProducerAndConsumerComponet<T> {
 
-    //组件持有一个消费者线程数组对象
-    private final WorkThread<T>[] flushThreads;
+    //工作者线程对象数组
+    private final WorkThread<T>[] workThreads;
     private AtomicInteger index;
     private static final Random r = new Random();
     private static ScheduledExecutorService TIMER = new ScheduledThreadPoolExecutor(1);
@@ -32,14 +32,14 @@ public class ProducerAndConsumerComponet<T> {
      * @param processor 回调接口(初始化组价实例的时候需要传递)
      */
     public ProducerAndConsumerComponet(int threadNum,int limitSize, int limitInterval, int capacity,  Processor<T> processor) {
-        this.flushThreads = new WorkThread[threadNum];
+        this.workThreads = new WorkThread[threadNum];
         if (threadNum > 1) {
             this.index = new AtomicInteger();
         }
         for(int i = 0; i < threadNum; ++i) {
             WorkThread<T> workThread = new WorkThread("workThread"+ "_" + i, limitSize, limitInterval, capacity, processor);
-            this.flushThreads[i] = workThread;
-            //默认初始化的时候，就进行指定大小任务开启
+            this.workThreads[i] = workThread;
+
             POOL.submit(workThread);
             TIMER.scheduleAtFixedRate(workThread::timeout, r.nextInt(50), limitInterval, TimeUnit.MILLISECONDS);
         }
@@ -51,12 +51,12 @@ public class ProducerAndConsumerComponet<T> {
      * @return true:添加成功 false:添加失败
      */
     public boolean add(T item) {
-        int len = this.flushThreads.length;
+        int len = this.workThreads.length;
         if (len == 1) {
-            return this.flushThreads[0].add(item);
+            return this.workThreads[0].add(item);
         } else {
             int mod = this.index.incrementAndGet() % len;
-            return this.flushThreads[mod].add(item);
+            return this.workThreads[mod].add(item);
         }
     }
 

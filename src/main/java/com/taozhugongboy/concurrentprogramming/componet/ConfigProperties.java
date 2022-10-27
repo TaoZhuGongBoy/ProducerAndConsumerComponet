@@ -2,9 +2,7 @@ package com.taozhugongboy.concurrentprogramming.componet;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * @author zhangfengshi
- */
+
 @ConfigurationProperties(prefix = "config")
 public class ConfigProperties {
     private Integer threadNum;
