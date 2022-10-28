@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "config")
 public class ConfigProperties {
     private Integer threadNum;
-    private Integer intervalTimeLimit;
+    private Integer period;
     private Integer queueSizeLimit;
 
     private Integer capacity;
@@ -20,12 +20,12 @@ public class ConfigProperties {
         this.threadNum = threadNum;
     }
 
-    public Integer getIntervalTimeLimit() {
-        return intervalTimeLimit;
+    public Integer getPeriod() {
+        return period;
     }
 
-    public void setIntervalTimeLimit(Integer intervalTimeLimit) {
-        this.intervalTimeLimit = intervalTimeLimit;
+    public void setPeriod(Integer period) {
+        this.period = period;
     }
 
     public Integer getQueueSizeLimit() {
