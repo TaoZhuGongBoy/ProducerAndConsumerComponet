@@ -13,11 +13,11 @@ import org.springframework.context.annotation.Configuration;
 public class ComponetConfiguration {
 
     @Autowired
-    private ConfigProperties dubboProperties;
+    private ConfigProperties configProperties;
 
     @Bean
     public ProducerAndConsumerComponet registBean() {
-        return new ProducerAndConsumerComponet(dubboProperties.getThreadNum(), dubboProperties.getQueueSizeLimit(), dubboProperties.getPeriod(), dubboProperties.getCapacity(), new ProcessorImpl());
+        return new ProducerAndConsumerComponet(configProperties.getThreadNum(), configProperties.getQueueSizeLimit(), configProperties.getPeriod(), configProperties.getCapacity(), new ProcessorImpl());
     }
 
 

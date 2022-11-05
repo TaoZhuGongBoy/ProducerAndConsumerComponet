@@ -15,11 +15,6 @@
         </encoder>
     </appender>
 
-
-    <!-- <logger name="com.alibaba.druid" level="WARN" additivity="false"> <appender-ref
-        ref="DAO" /> </logger> <logger name="java.sql" level="WARN" additivity="false">
-        <appender-ref ref="DAO" /> </logger> -->
-
     <root>
         <level value="info" />
         <appender-ref ref="CONSOLE"></appender-ref>

@@ -31,7 +31,7 @@ public class ProducerAndConsumerComponet<T> {
      * 构造器
      * @param threadNum 默认新建的消费者线程个数
      * @param limitSize 队列长度阈值;超过将唤醒阻塞的线程
-     * @param period 前后两个任务的执行周期 (for example :200ms 代表前面一次任务执行完毕后，200毫秒后下一个任务继续执行)
+     * @param period   工作线程对象的timeout方法前后两次执行的时间间隔周期
      * @param capacity 工作线程内部的有界阻塞队列的初始容量大小
      * @param processor 回调接口(初始化组价实例的时候需要传递)
      */
@@ -45,8 +45,7 @@ public class ProducerAndConsumerComponet<T> {
             this.workThreads[i] = workThread;
 
             executorService.submit(workThread);
-            //调用scheduleAtFixedRate时，会向ScheduledThreadPoolExecutor的DelayQueue添加一个实现了RunableScheduleFuture接口的
-            //ScheduleFutureTask
+            //开启threadNum个定时任务，每个任务各自检查各个工作线程对象内部的timeout方法，查看前后两次的timeout方法执行周期
             scheduleThreadPool.scheduleAtFixedRate(workThread::timeout, r.nextInt(50), period, TimeUnit.MILLISECONDS);
         }
     }
@@ -111,7 +110,7 @@ public class ProducerAndConsumerComponet<T> {
          * 消费者线程构造器
          * @param threadName 线程名
          * @param queueSizeLimit 指定队列阈值(可配置)
-         * @param period 前后两个任务的执行周期(可配置)
+         * @param period 工作线程对象的timeout方法前后两次执行的时间间隔周期(可配置)
          * @param capacity 阻塞队列初始容量
          * @param processor 回调接口
          */
@@ -141,9 +140,10 @@ public class ProducerAndConsumerComponet<T> {
          * 当前时间与上次任务处理时间差是否超过指定阈值;如果超过触发start方法
          */
         public void timeout() {
+            log.info("start timeout ...{}",currentThread.getName());
           //  log.info("{}====check timeout",currentThread.getName());
             if (System.currentTimeMillis() - this.lastFlushTime >= (long)this.period) {
-                log.info("当前时间距离上次任务处理时间周期={}超出指定阈值={}",System.currentTimeMillis() - this.lastFlushTime ,period);
+                log.info("当前时间={}距离上次任务处理时间={}周期={}超出指定阈值={}",System.currentTimeMillis(),lastFlushTime,(System.currentTimeMillis() - this.lastFlushTime) ,period);
                 this.start();
             }
 
@@ -169,14 +169,15 @@ public class ProducerAndConsumerComponet<T> {
         }
 
         /**
-         * 将队列中的元素通过调用<code>drainTo</code>方法，转成List对象(容量受queueSizeLimit限制)，最后调用回调函数传递List对象
+         * 将队列中的元素添加到指定集合(初始容量限制)
          */
         public void flush() {
+            //记录最新任务处理开始时间
+            this.lastFlushTime = System.currentTimeMillis();
             if(queue.isEmpty()){
+                log.info("阻塞队列中元素为空，不需要处理...");
                 return;
             }
-
-            this.lastFlushTime = System.currentTimeMillis();
             List<T> temp = new ArrayList(this.queueSizeLimit);
             int size = this.queue.drainTo(temp, this.queueSizeLimit);
             if (size > 0) {
